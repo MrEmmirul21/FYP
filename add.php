@@ -6,11 +6,11 @@
 	$acidity = $_POST["acidity"];
 	$hash = $_POST["hash"];
 	
-	$sql = "INSERT INTO 'sensorreadings' ('temperature','turbidity','acidity','hash') VALUES ('$temperature','$turbididty','$acidity',.$hash')";
-	echo "\nQuery: ".$sql;
+	$sql = "INSERT INTO sensorreadings (temperature,turbidity,acidity,hash) VALUES ('$temperature','$turbididty','$acidity','$hash')";
+	//echo "\nQuery: ".$sql;
 
 	if (mysqli_query($connection, $sql))
-		echo "Sensor readings  successfully";
+		echo "Sensor readings recorded successfully\n";
 	
 	else 
 		echo "\nError: ".mysqli_error($connection);
