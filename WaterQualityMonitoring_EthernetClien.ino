@@ -3,7 +3,7 @@
 #include <SPI.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <SHA3.h>
+#include <sha1.h>
 
 // Objects for both classes are defined
 OneWire oneWire(5); // Data wire is plugged into pin 2 on the Arduino 
@@ -18,8 +18,7 @@ EthernetClient client;
 // Declaration
 float temperature, acidity;
 int turbidity;
-String postdata;
-String hashvalue;
+String postdata, hashvalue;
 long previousMillis = 0;
 unsigned long currentMillis = 0;
 long interval = 250000; // READING INTERVAL
@@ -30,7 +29,6 @@ void setup() {
   Ethernet.init(10);
 
 	if (Ethernet.begin(mac) == 0) {
-		Serial.println("Failed to configure Ethernet using DHCP"); 
     Ethernet.begin(mac,ip);
     Serial.print("Static IPv4 Address : ");
     Serial.println(Ethernet.localIP());
@@ -93,7 +91,24 @@ float readpHvalue()
 
   return acidity;
 }
+////////////////////////////////// Generate Hash Value //////////////////////////////////
+String generateHashValue(String postdata)
+{
+  char tmp[41];  
+  memset(tmp, 0, 41);
 
+  uint8_t *hash;
+  Sha1.init();
+  Sha1.print(postdata);
+  hash = Sha1.result();
+
+  for (int i=0; i<20; i++) {
+    tmp[i*2] = "0123456789abcdef"[hash[i]>>4];
+    tmp[i*2+1] = "0123456789abcdef"[hash[i]&0xf];
+  }
+  
+  return tmp;
+}
 ////////////////////////////// send HTTP request to server //////////////////////////////
 void sendHTTPrequest(String postdata)
 {
@@ -109,11 +124,12 @@ void sendHTTPrequest(String postdata)
 	  client.println(postdata.length()); 
 	  client.println(); 
 	  client.print(postdata);
+    Serial.println("POST: "+postdata);
   }
   else { Serial.println("Failed connection :("); }
 
   // get reply from the server if server receive the postdata
-  Serial.println("Server Response :");  
+  Serial.println("\nServer Response :");  
   while(client.connected())
   {
     if (client.available()) {
@@ -139,16 +155,14 @@ void loop() {
     temperature = readTemperature();  // call readtemperature() function
     turbidity = detectTurbidity();    // call detectTurbidity() function
     acidity = readpHvalue();          // call readpHvalue() function
-    //hashvalue = "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678900";
-    hashvalue = "0123456789";
   }
-  postdata = "api_key=tPmAT5Ab3j7F9";
-  postdata += "&temperature="+ String(temperature);
+  
+  postdata = "temperature="+ String(temperature);
   postdata += "&turbidity="+ String(turbidity);
   postdata += "&acidity="+ String(acidity);
-  postdata += "&hash="+ String(hashvalue);
-  
+  postdata += "&hash="+ generateHashValue(postdata);
+
   sendHTTPrequest(postdata);
 
-	delay(3000); 
+	delay(60000); // 1 minutes delay 
 }
