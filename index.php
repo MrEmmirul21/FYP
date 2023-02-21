@@ -8,11 +8,16 @@
 			background-color: LightGray;
 			border: collapse;
 		}
+		td.error {
+			background-color: red;
+			border: collapse;
+		}
 		table {
 			margin-left: auto; 
 			margin-right: auto;
 		}
 		h1 { text-align: center; }
+		
 	</style>
 </head>
 
@@ -38,30 +43,33 @@
 		{
 			while($row = mysqli_fetch_array($result)) 
 			{
-				echo "<tr>";
-					echo "<td>" .$row['timestamp']. "</td>";
+				$timestamp = $row['timestamp'];
+				$temperature = number_format((float)$row['temperature'], 2, '.', '');
+				$turbidity = $row['turbidity'];
+				$acidity = number_format((float)$row['acidity'], 2, '.', '');
+                $hash = $row['hash'];
+				$test = "temperature=".$temperature."&turbidity=".$turbidity."&acidity=".$acidity;
 
-					$temperature = number_format((float)$row['temperature'], 2, '.', '');
-					echo "<td>" .$temperature. "</td>";
-
-					echo "<td>" .$row['turbidity']. "</td>";
-
-					$acidity = number_format((float)$row['acidity'], 2, '.', '');
-					echo "<td>" .$acidity. "</td>";
-
-					echo "<td>" .$row['hash']. "</td>";
-
-					$test = "temperature=".$temperature."&turbidity=".$row['turbidity']."&acidity=".$row['acidity'];
-
-					if ($row['hash'] != sha1($test))
-						echo "<th>".sha1($test)."</th>";
-					else
-						echo "<td>".sha1($test)."</td>";
-
-				echo "</tr>";
-
-				if ($row['hash'] != sha1($test))
-					echo"<script language='javascript'>alert('Checksumming failed\nProbably data was changed');window.location='index.php';</script>";
+				if ($hash != sha1($test)) {
+					echo "<tr>";
+						echo "<td class='error'>" .$timestamp. "</td>";
+						echo "<td class='error'>" .$temperature. "</td>";
+						echo "<td class='error'>" .$turbidity. "</td>";
+						echo "<td class='error'>" .$acidity. "</td>";
+						echo "<td class='error'>" .$row['hash']. "</td>";
+						echo "<td class='error'>" .sha1($test). "</td>";
+					echo "</tr>";
+				}
+				else {
+					echo "<tr>";
+						echo "<td>" .$timestamp. "</td>";
+						echo "<td>" .$temperature. "</td>";
+						echo "<td>" .$turbidity. "</td>";
+						echo "<td>" .$acidity. "</td>";
+						echo "<td>" .$row['hash']. "</td>";
+						echo "<td>" .sha1($test). "</td>";
+				    echo "</tr>";
+				}
 		    }
 		} 
 		else
