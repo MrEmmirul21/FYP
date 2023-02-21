@@ -47,10 +47,11 @@
 				$temperature = number_format((float)$row['temperature'], 2, '.', '');
 				$turbidity = $row['turbidity'];
 				$acidity = number_format((float)$row['acidity'], 2, '.', '');
-                $hash = $row['hash'];
+                                $hash = $row['hash'];
 				$test = "temperature=".$temperature."&turbidity=".$turbidity."&acidity=".$acidity;
 
 				if ($hash != sha1($test)) {
+					echo"<script language='javascript'>alert('ALLERT!!! The data has been modified');</script>";
 					echo "<tr>";
 						echo "<td class='error'>" .$timestamp. "</td>";
 						echo "<td class='error'>" .$temperature. "</td>";
