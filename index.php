@@ -1,51 +1,72 @@
 <html>
-	<head>
-		<style>
-		table, th, td {
+<head>
+	<style>
+		table, th {
 			border: 1px solid black;
-			border-collapse: collapse;
 		}
-		table.center {
+		td {
+			background-color: LightGray;
+			border: collapse;
+		}
+		table {
 			margin-left: auto; 
 			margin-right: auto;
 		}
-		tr{border-bottom: 1px solid #ddd}
-		</style>
-   </head>
+		h1 { text-align: center; }
+	</style>
+</head>
 
 <body>
    <h1>Water Quality Monitoring Web Sever</h1>
 
-   <table class="centre" border="1" cellspacing="1" cellpadding="1">
+   <table style="width:80%">
 		<tr>
 			<th>&nbsp;Timestamp&nbsp;</th>
 			<th>&nbsp;Temperature (°C)&nbsp;</th>
 			<th>&nbsp;Turbidity (NTU)&nbsp;</th>
 			<th>&nbsp;Acidity (pH)&nbsp;</th>
-			<th>&nbsp;Water Condition Status&nbsp;</th>
-			<th>&nbsp;Hash (SHA3-512)&nbsp;</th>
+			<th>&nbsp;Digest Value (SHA1)&nbsp;</th>
+			<th>&nbsp;Checksum (SHA1)&nbsp;</th>
 		</tr>
 		
 		<?php
         include("connect.php");
-        $sql = "SELECT * FROM 'sensorreadings' ORDER BY 'seqnum' DESC";
+        $sql= "SELECT * FROM sensorreadings ORDER BY seqnum DESC";
         $result = mysqli_query($connection,$sql);
-		echo $_POST['temperature'] . $_POST['turbidity'] . $_POST['acidity'];;
 		
-		if($result != false)
+		if($result == true)
 		{
 			while($row = mysqli_fetch_array($result)) 
 			{
 				echo "<tr>";
-					echo "<th>" .$row['seqnum'] . "</th>";
-					echo "<th>" .$row['timestamp']. "</th>";
-					echo "<th>" .$row['temperature']. "</th>";
-					echo "<th>" .$row['acidity']. "</th>";
-					echo "<th>" .$row['hash']. "</th>";
+					echo "<td>" .$row['timestamp']. "</td>";
+
+					$temperature = number_format((float)$row['temperature'], 2, '.', '');
+					echo "<td>" .$temperature. "</td>";
+
+					echo "<td>" .$row['turbidity']. "</td>";
+
+					$acidity = number_format((float)$row['acidity'], 2, '.', '');
+					echo "<td>" .$acidity. "</td>";
+
+					echo "<td>" .$row['hash']. "</td>";
+
+					$test = "temperature=".$temperature."&turbidity=".$row['turbidity']."&acidity=".$row['acidity'];
+
+					if ($row['hash'] != sha1($test))
+						echo "<th>".sha1($test)."</th>";
+					else
+						echo "<td>".sha1($test)."</td>";
+
 				echo "</tr>";
-				
+
+				if ($row['hash'] != sha1($test))
+					echo"<script language='javascript'>alert('Checksumming failed\nProbably data was changed');window.location='index.php';</script>";
 		    }
-		} ?>
+		} 
+		else
+			echo "Error: " . mysqli_error($connection);
+		?>
     </table>
 </body>
 </html>
