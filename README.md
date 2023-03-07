@@ -1,1 +1,8 @@
-Assalamu'alaikum and Hello, welcome to my Final Year Project "Data Protection for Water Quality Monitoring System using SHA3-512.
+PROJECT TITLE: DATA PROTECTION FOR WATER QUALITY MONITORING SYSTEM USING SHA
+DEVELOPER    : EMMIRUL HAZIQ
+
+PROJECT REQUIREMENTS:
+1.  Arduino IDE
+2.  Visual Studio Code with PHP extensions
+3.  XAMPP
+4.  Web Browser - Google Chrome
